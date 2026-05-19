@@ -18,8 +18,10 @@
       --green: #4ade80;
       --orange: #fb923c;
       --cyan: #22d3ee;
+      --lime: #a3e635;
       --pink: #f472b6;
       --yellow: #facc15;
+      --slate: #94a3b8;
     }
 
     * {
@@ -179,6 +181,10 @@
       --section-color: var(--cyan);
     }
 
+    #code-versions {
+      --section-color: var(--lime);
+    }
+
     #explanation {
       --section-color: var(--pink);
     }
@@ -188,7 +194,7 @@
     }
 
     #links {
-      --section-color: #94a3b8;
+      --section-color: var(--slate);
     }
 
     p {
@@ -243,6 +249,7 @@
       padding: 13px;
       text-align: left;
       color: var(--muted);
+      vertical-align: top;
     }
 
     th {
@@ -350,6 +357,7 @@
       <li><a href="#materials">Materials</a></li>
       <li><a href="#wiring">Wiring</a></li>
       <li><a href="#code">Source Code</a></li>
+      <li><a href="#code-versions">Code Versions</a></li>
       <li><a href="#explanation">Code Highlights</a></li>
       <li><a href="#microcontroller">How It Runs</a></li>
       <li><a href="#links">Links</a></li>
@@ -553,6 +561,11 @@ pinMode(reactionButtonPin, INPUT_PULLUP);</code></pre>
     <section id="code">
       <h2>5. Source Code</h2>
 
+      <p>
+        The code shown below is the <strong>Wokwi / Arduino-style version</strong> of the project.
+        It is the version that runs directly inside the online simulator.
+      </p>
+
       <pre><code>// ESP32-S3 Reaction Time Tester
 // LED: GPIO 4
 // Start Button: GPIO 5
@@ -644,8 +657,59 @@ void loop() {
 }</code></pre>
     </section>
 
+    <section id="code-versions">
+      <h2>6. Two Code Versions in This Repository</h2>
+
+      <p>
+        This repository includes <strong>two source-code versions</strong>. They implement the same
+        reaction time tester logic, but they are designed for different development environments.
+      </p>
+
+      <table>
+        <tr>
+          <th>Version</th>
+          <th>File(s)</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td>Wokwi / Arduino-style version</td>
+          <td><code>wokwi-version/sketch.ino</code></td>
+          <td>
+            This is the version used in the Wokwi browser simulation and in the instructional video.
+            It uses Arduino-style functions such as <code>pinMode()</code>,
+            <code>digitalRead()</code>, <code>digitalWrite()</code>, and <code>millis()</code>.
+          </td>
+        </tr>
+        <tr>
+          <td>ESP-IDF C source version</td>
+          <td>
+            <code>esp-idf-c-version/main.c</code><br>
+            <code>esp-idf-c-version/reaction_time_tester.h</code>
+          </td>
+          <td>
+            This version is prepared as readable <code>.c</code> and <code>.h</code> source code
+            for a physical ESP32-S3 development workflow. It uses ESP-IDF-style APIs such as
+            <code>gpio_get_level()</code>, <code>gpio_set_level()</code>,
+            <code>esp_timer_get_time()</code>, and FreeRTOS delays.
+          </td>
+        </tr>
+      </table>
+
+      <h3>Why Include Both?</h3>
+      <p>
+        The <code>.ino</code> file is the version that directly runs in the Wokwi simulation,
+        while the <code>.c</code> and <code>.h</code> files show how the same project logic can be
+        organized in a more traditional C-based ESP32-S3 source-code structure.
+      </p>
+
+      <div class="highlight">
+        Both versions follow the same core process:
+        <strong>press Start → wait for a random delay → turn on the LED → measure the reaction button press → print the result.</strong>
+      </div>
+    </section>
+
     <section id="explanation">
-      <h2>6. Most Interesting Parts of the Code</h2>
+      <h2>7. Most Interesting Parts of the Code</h2>
 
       <h3>A. Internal Pull-Up Button Logic</h3>
       <pre><code>pinMode(startButtonPin, INPUT_PULLUP);
@@ -685,7 +749,7 @@ reactionTime = millis() - lightOnTime;</code></pre>
     </section>
 
     <section id="microcontroller">
-      <h2>7. How the Program Runs on a Microcontroller</h2>
+      <h2>8. How the Program Runs on a Microcontroller</h2>
 
       <p>
         Although this version is demonstrated in Wokwi, the same type of code can be uploaded
@@ -693,7 +757,7 @@ reactionTime = millis() - lightOnTime;</code></pre>
       </p>
 
       <ol>
-        <li>The programmer writes source code in Arduino-style C++.</li>
+        <li>The programmer writes source code in Arduino-style C++ or C.</li>
         <li>The development environment compiles the readable source code into machine-readable binary instructions.</li>
         <li>On physical hardware, the binary would be transferred to the ESP32-S3 through a USB cable.</li>
         <li>The microcontroller stores and executes those instructions.</li>
@@ -707,7 +771,7 @@ reactionTime = millis() - lightOnTime;</code></pre>
     </section>
 
     <section id="links">
-      <h2>8. Project Links</h2>
+      <h2>9. Project Links</h2>
 
       <div class="link-card">
         <strong>Wokwi Simulation:</strong><br>
