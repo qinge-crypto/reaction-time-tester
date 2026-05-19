@@ -1,1 +1,644 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ESP32-S3 Reaction Time Tester</title>
+  <style>
+    :root {
+      --bg: #f4f7fb;
+      --card: #ffffff;
+      --text: #1f2937;
+      --muted: #5b6473;
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --accent: #e0ecff;
+      --border: #d9e2f2;
+      --code-bg: #111827;
+      --code-text: #e5e7eb;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, Helvetica, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.65;
+    }
+
+    header {
+      background: linear-gradient(135deg, #1d4ed8, #3b82f6);
+      color: white;
+      padding: 64px 20px;
+      text-align: center;
+    }
+
+    header h1 {
+      margin: 0 0 12px;
+      font-size: 2.8rem;
+    }
+
+    header p {
+      max-width: 850px;
+      margin: 0 auto 24px;
+      font-size: 1.15rem;
+      opacity: 0.95;
+    }
+
+    .button-group {
+      display: flex;
+      justify-content: center;
+      gap: 14px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      display: inline-block;
+      padding: 12px 18px;
+      background: white;
+      color: var(--primary-dark);
+      text-decoration: none;
+      font-weight: bold;
+      border-radius: 999px;
+      transition: 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+      opacity: 0.92;
+    }
+
+    nav {
+      background: white;
+      border-bottom: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    nav ul {
+      margin: 0;
+      padding: 14px 20px;
+      display: flex;
+      justify-content: center;
+      flex-wrap: wrap;
+      gap: 18px;
+      list-style: none;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: var(--primary-dark);
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+
+    main {
+      max-width: 1050px;
+      margin: 34px auto;
+      padding: 0 20px 50px;
+    }
+
+    section {
+      background: var(--card);
+      margin-bottom: 24px;
+      padding: 28px;
+      border-radius: 18px;
+      border: 1px solid var(--border);
+      box-shadow: 0 8px 22px rgba(30, 64, 175, 0.06);
+    }
+
+    h2 {
+      color: var(--primary-dark);
+      margin-top: 0;
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 10px;
+    }
+
+    h3 {
+      color: #1e40af;
+      margin-top: 24px;
+    }
+
+    .overview {
+      background: #eef5ff;
+      border: 1px solid #cfe0ff;
+      border-radius: 14px;
+      padding: 20px;
+      font-family: "Courier New", monospace;
+      white-space: pre-wrap;
+      overflow-x: auto;
+      font-size: 1rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      overflow: hidden;
+      border-radius: 12px;
+    }
+
+    th, td {
+      border: 1px solid var(--border);
+      padding: 12px;
+      text-align: left;
+    }
+
+    th {
+      background: var(--accent);
+      color: #1e3a8a;
+    }
+
+    code {
+      background: #eef2ff;
+      color: #1e3a8a;
+      padding: 2px 6px;
+      border-radius: 6px;
+      font-family: "Courier New", monospace;
+    }
+
+    pre {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 18px;
+      border-radius: 14px;
+      overflow-x: auto;
+      line-height: 1.5;
+      font-size: 0.92rem;
+    }
+
+    pre code {
+      background: transparent;
+      color: inherit;
+      padding: 0;
+    }
+
+    .highlight {
+      background: #eef5ff;
+      border-left: 5px solid var(--primary);
+      padding: 16px 18px;
+      border-radius: 10px;
+      margin: 18px 0;
+    }
+
+    .steps li {
+      margin-bottom: 10px;
+    }
+
+    .link-card {
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 18px;
+      background: #f8fbff;
+      margin-top: 14px;
+    }
+
+    .link-card a {
+      color: var(--primary-dark);
+      font-weight: bold;
+      word-break: break-word;
+    }
+
+    footer {
+      text-align: center;
+      padding: 26px 20px 40px;
+      color: var(--muted);
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 700px) {
+      header h1 {
+        font-size: 2.1rem;
+      }
+
+      section {
+        padding: 20px;
+      }
+
+      nav ul {
+        justify-content: flex-start;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>ESP32-S3 Reaction Time Tester</h1>
+    <p>
+      A Wokwi-based microcontroller tutorial that measures how quickly a user reacts
+      after an LED turns on.
+    </p>
+
+    <div class="button-group">
+      <a class="button" href="https://wokwi.com/projects/464041653053491201" target="_blank">
+        Open Wokwi Simulation
+      </a>
+      <a class="button" href="https://github.com/qinge-crypto/reaction-time-tester" target="_blank">
+        View GitHub Repository
+      </a>
+    </div>
+  </header>
+
+  <nav>
+    <ul>
+      <li><a href="#motivation">Motivation</a></li>
+      <li><a href="#overview">Overview</a></li>
+      <li><a href="#materials">Materials</a></li>
+      <li><a href="#wiring">Wiring</a></li>
+      <li><a href="#code">Source Code</a></li>
+      <li><a href="#explanation">Code Highlights</a></li>
+      <li><a href="#references">References</a></li>
+    </ul>
+  </nav>
+
+  <main>
+    <section id="motivation">
+      <h2>1. Motivating Example</h2>
+      <p>
+        Reaction time is the amount of time it takes a person to respond to a stimulus.
+        In this project, I built a simple <strong>reaction time tester</strong> using an
+        <strong>ESP32-S3 microcontroller</strong>, two pushbuttons, one LED, and one resistor.
+      </p>
+
+      <p>The system works like a small reflex game:</p>
+      <ol class="steps">
+        <li>The user presses the <strong>Start Button</strong>.</li>
+        <li>The ESP32-S3 waits for a random amount of time.</li>
+        <li>The LED suddenly turns on.</li>
+        <li>The user presses the <strong>Reaction Button</strong> as quickly as possible.</li>
+        <li>The Serial Monitor displays the reaction time in milliseconds.</li>
+      </ol>
+
+      <div class="highlight">
+        This project demonstrates digital input, digital output, timing with
+        <code>millis()</code>, random delays, early-press detection, and Serial Monitor output.
+      </div>
+
+      <p>
+        For this tutorial, the project is implemented in <strong>Wokwi</strong>, an online
+        electronics simulator that allows the ESP32-S3 circuit and Arduino-style C++ code
+        to run virtually in a browser.
+      </p>
+    </section>
+
+    <section id="overview">
+      <h2>2. System Overview</h2>
+
+      <h3>Overview Diagram</h3>
+      <div class="overview">
+Start Button ───────┐
+                    │
+                    ▼
+              ESP32-S3 Microcontroller ───────► LED
+                    │
+                    ▼
+Reaction Button ───► Reaction Time Calculation
+                    │
+                    ▼
+              Serial Monitor Output
+      </div>
+
+      <h3>System Explanation</h3>
+      <p>The project has two inputs and two outputs:</p>
+
+      <table>
+        <tr>
+          <th>Category</th>
+          <th>Component</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td>Input</td>
+          <td>Start Button</td>
+          <td>Begins a new reaction-time test.</td>
+        </tr>
+        <tr>
+          <td>Input</td>
+          <td>Reaction Button</td>
+          <td>Records the user's response after the LED turns on.</td>
+        </tr>
+        <tr>
+          <td>Output</td>
+          <td>LED</td>
+          <td>Provides the visual signal to react to.</td>
+        </tr>
+        <tr>
+          <td>Output</td>
+          <td>Serial Monitor</td>
+          <td>Displays messages and the measured reaction time.</td>
+        </tr>
+      </table>
+
+      <p>
+        The ESP32-S3 controls the logic of the system. It waits for the start command,
+        chooses a random delay, turns on the LED, measures the response time, and prints
+        the final result.
+      </p>
+    </section>
+
+    <section id="materials">
+      <h2>3. Materials Needed</h2>
+
+      <p>
+        Since this version of the project is built in Wokwi, no physical hardware is required.
+        The simulated circuit uses the following components:
+      </p>
+
+      <table>
+        <tr>
+          <th>Component</th>
+          <th>Quantity</th>
+          <th>Purpose</th>
+        </tr>
+        <tr>
+          <td>ESP32-S3 DevKit</td>
+          <td>1</td>
+          <td>Main microcontroller</td>
+        </tr>
+        <tr>
+          <td>LED</td>
+          <td>1</td>
+          <td>Visual signal for the reaction test</td>
+        </tr>
+        <tr>
+          <td>Resistor</td>
+          <td>1</td>
+          <td>Protects the LED</td>
+        </tr>
+        <tr>
+          <td>Pushbutton</td>
+          <td>2</td>
+          <td>Start input and reaction input</td>
+        </tr>
+        <tr>
+          <td>Virtual jumper wires</td>
+          <td>Several</td>
+          <td>Connect the simulated circuit</td>
+        </tr>
+      </table>
+
+      <h3>Software / Platform</h3>
+      <ul>
+        <li>Wokwi ESP32-S3 Simulator</li>
+        <li>Arduino-style C++ code editor inside Wokwi</li>
+      </ul>
+    </section>
+
+    <section id="wiring">
+      <h2>4. Circuit Wiring Instructions</h2>
+
+      <h3>Pin Assignment</h3>
+      <table>
+        <tr>
+          <th>Function</th>
+          <th>ESP32-S3 Pin</th>
+        </tr>
+        <tr>
+          <td>LED</td>
+          <td>GPIO 4</td>
+        </tr>
+        <tr>
+          <td>Start Button</td>
+          <td>GPIO 5</td>
+        </tr>
+        <tr>
+          <td>Reaction Button</td>
+          <td>GPIO 6</td>
+        </tr>
+      </table>
+
+      <h3>Step 1: Connect the LED</h3>
+      <ol class="steps">
+        <li>Connect <strong>GPIO 4</strong> on the ESP32-S3 to one side of the resistor.</li>
+        <li>Connect the other side of the resistor to the positive leg of the LED.</li>
+        <li>Connect the negative leg of the LED to <strong>GND</strong>.</li>
+      </ol>
+
+      <pre><code>GPIO 4 → Resistor → LED → GND</code></pre>
+
+      <h3>Step 2: Connect the Start Button</h3>
+      <ol class="steps">
+        <li>Connect one side of the Start Button to <strong>GPIO 5</strong>.</li>
+        <li>Connect the opposite side of the Start Button to <strong>GND</strong>.</li>
+      </ol>
+
+      <pre><code>GPIO 5 → Start Button → GND</code></pre>
+
+      <h3>Step 3: Connect the Reaction Button</h3>
+      <ol class="steps">
+        <li>Connect one side of the Reaction Button to <strong>GPIO 6</strong>.</li>
+        <li>Connect the opposite side of the Reaction Button to <strong>GND</strong>.</li>
+      </ol>
+
+      <pre><code>GPIO 6 → Reaction Button → GND</code></pre>
+
+      <h3>Why the Buttons Connect to GND</h3>
+      <p>The code uses the microcontroller's internal pull-up resistors:</p>
+
+      <pre><code>pinMode(startButtonPin, INPUT_PULLUP);
+pinMode(reactionButtonPin, INPUT_PULLUP);</code></pre>
+
+      <p>This means:</p>
+      <ul>
+        <li>When a button is <strong>not pressed</strong>, the pin reads <code>HIGH</code>.</li>
+        <li>When a button is <strong>pressed</strong>, the pin is connected to GND and reads <code>LOW</code>.</li>
+      </ul>
+    </section>
+
+    <section id="code">
+      <h2>5. Source Code</h2>
+
+      <pre><code>// ESP32-S3 Reaction Time Tester
+// LED: GPIO 4
+// Start Button: GPIO 5
+// Reaction Button: GPIO 6
+
+const int ledPin = 4;
+const int startButtonPin = 5;
+const int reactionButtonPin = 6;
+
+unsigned long lightOnTime = 0;
+unsigned long reactionTime = 0;
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(ledPin, OUTPUT);
+
+  // INPUT_PULLUP means:
+  // not pressed = HIGH
+  // pressed = LOW
+  pinMode(startButtonPin, INPUT_PULLUP);
+  pinMode(reactionButtonPin, INPUT_PULLUP);
+
+  digitalWrite(ledPin, LOW);
+
+  randomSeed(micros());
+
+  Serial.println("=== Reaction Time Tester ===");
+  Serial.println("Press the START button to begin.");
+}
+
+void loop() {
+  // Wait until the Start Button is pressed
+  if (digitalRead(startButtonPin) == LOW) {
+    delay(200); // simple debounce
+
+    Serial.println();
+    Serial.println("Get ready...");
+    digitalWrite(ledPin, LOW);
+
+    // Random waiting time from 1 to 5 seconds
+    int randomDelay = random(1000, 5001);
+
+    unsigned long waitStart = millis();
+
+    // During the waiting period, check if the player presses too early
+    while (millis() - waitStart &lt; randomDelay) {
+      if (digitalRead(reactionButtonPin) == LOW) {
+        Serial.println("Too early! You pressed before the light turned on.");
+        Serial.println("Press START to try again.");
+
+        // Wait until the player releases the button
+        while (digitalRead(reactionButtonPin) == LOW) {
+          delay(10);
+        }
+
+        return;
+      }
+    }
+
+    // Turn on LED and start timing
+    digitalWrite(ledPin, HIGH);
+    lightOnTime = millis();
+
+    Serial.println("GO! Press the REACTION button!");
+
+    // Wait until Reaction Button is pressed
+    while (digitalRead(reactionButtonPin) == HIGH) {
+      // Keep waiting
+    }
+
+    reactionTime = millis() - lightOnTime;
+
+    digitalWrite(ledPin, LOW);
+
+    Serial.print("Your reaction time: ");
+    Serial.print(reactionTime);
+    Serial.println(" ms");
+
+    Serial.println("Press START to play again.");
+
+    // Wait until Reaction Button is released
+    while (digitalRead(reactionButtonPin) == LOW) {
+      delay(10);
+    }
+
+    delay(300);
+  }
+}</code></pre>
+    </section>
+
+    <section id="explanation">
+      <h2>6. Most Interesting Parts of the Code</h2>
+
+      <h3>A. Internal Pull-Up Button Logic</h3>
+      <pre><code>pinMode(startButtonPin, INPUT_PULLUP);
+pinMode(reactionButtonPin, INPUT_PULLUP);</code></pre>
+
+      <p>
+        The buttons are configured with internal pull-up resistors. The default reading is
+        <code>HIGH</code>, and a pressed button reads <code>LOW</code>. Therefore, the code checks:
+      </p>
+
+      <pre><code>if (digitalRead(startButtonPin) == LOW)</code></pre>
+
+      <h3>B. Random Waiting Time</h3>
+      <pre><code>int randomDelay = random(1000, 5001);</code></pre>
+
+      <p>
+        The ESP32-S3 chooses a random waiting period between 1 and 5 seconds. This prevents
+        the player from predicting exactly when the LED will turn on.
+      </p>
+
+      <h3>C. Measuring Reaction Time</h3>
+      <pre><code>lightOnTime = millis();
+reactionTime = millis() - lightOnTime;</code></pre>
+
+      <p>
+        The program records the moment the LED turns on. When the Reaction Button is pressed,
+        it subtracts the stored start time from the current time to calculate the reaction time.
+      </p>
+
+      <h3>D. Detecting an Early Press</h3>
+      <pre><code>if (digitalRead(reactionButtonPin) == LOW)</code></pre>
+
+      <p>
+        During the random waiting period, the program checks whether the user presses too early.
+        If so, it prints a warning message and asks the user to try again.
+      </p>
+    </section>
+
+    <section id="microcontroller">
+      <h2>7. How the Program Runs on a Microcontroller</h2>
+
+      <p>
+        Although this version is demonstrated in Wokwi, the same type of code can be uploaded
+        to a physical ESP32-S3 board.
+      </p>
+
+      <ol class="steps">
+        <li>The programmer writes source code in Arduino-style C++.</li>
+        <li>The development environment compiles the readable source code into machine-readable binary instructions.</li>
+        <li>On physical hardware, the binary would be transferred to the ESP32-S3 through a USB cable.</li>
+        <li>The microcontroller stores and executes those instructions.</li>
+        <li>The processor repeatedly performs the instruction fetch, decode, and execute cycle to run the program.</li>
+      </ol>
+
+      <p>
+        In Wokwi, this behavior is simulated virtually, allowing the same circuit logic and program
+        behavior to be demonstrated in a browser.
+      </p>
+    </section>
+
+    <section id="links">
+      <h2>8. Project Links</h2>
+
+      <div class="link-card">
+        <strong>Wokwi Simulation:</strong><br>
+        <a href="https://wokwi.com/projects/464041653053491201" target="_blank">
+          Open the working ESP32-S3 Reaction Time Tester simulation
+        </a>
+      </div>
+
+      <div class="link-card">
+        <strong>GitHub Repository:</strong><br>
+        <a href="https://github.com/qinge-crypto/reaction-time-tester" target="_blank">
+          View the source code and webpage files on GitHub
+        </a>
+      </div>
+    </section>
+
+    <section id="references">
+      <h2>9. References / Credits</h2>
+      <ul>
+        <li>Wokwi ESP32-S3 Simulator Documentation</li>
+        <li>Wokwi Pushbutton Documentation</li>
+        <li>Arduino Reference for <code>pinMode()</code>, <code>digitalRead()</code>, <code>digitalWrite()</code>, <code>millis()</code>, and <code>random()</code></li>
+        <li>Computer Systems final project assignment requirements</li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    Created for a Computer Systems microcontroller tutorial project.
+  </footer>
+</body>
+</html>
